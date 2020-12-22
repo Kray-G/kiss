@@ -50,3 +50,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+src/kxs.output
+src/kxs.tab.c
+src/kxs.tab.h

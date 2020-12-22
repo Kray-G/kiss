@@ -1,2 +1,3 @@
-# kiss
-Kinx Subset with Statically-typed.
+# KiSS
+
+**Ki**nx **S**ubset with **S**tatically-typed.
