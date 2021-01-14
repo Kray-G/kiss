@@ -216,7 +216,8 @@ node_t *ast_function_statement(node_manager_t *mgr, int64_t rtype, string_t *nam
 {
     node_t *n = node_new(mgr);
     n->ntype = STMT_FUNC;
-    n->vtype = rtype;
+    n->vtype = VALTYPE_FUNC;
+    n->rtype = rtype;
     n->n.s.func.name = name;
     n->n.s.func.args = args;
     n->n.s.func.block = block;

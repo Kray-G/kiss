@@ -13,8 +13,10 @@ enum node_type {
     EXPR_DBL,
     EXPR_VAR,
     EXPR_CALL,
+    EXPR_UNARY,
     EXPR_BINARY,
     EXPR_DECL,
+    EXPR_CAST,
 
     STMT_EXPR,
     STMT_BLOCK,
@@ -29,6 +31,8 @@ enum value_type {
     VALTYPE_UNKNOWN,
     VALTYPE_INT,
     VALTYPE_DBL,
+    VALTYPE_STR,
+    VALTYPE_FUNC,
 };
 
 struct node_t_;
@@ -44,12 +48,17 @@ typedef struct node_t_ {
     struct node_t_ *last;           // for statement or expression list.
 
     enum node_type ntype;
-    enum value_type vtype;          // type of value. if ntype == STMT_FUNC, this means a return type.
+    enum value_type vtype;          // type of value.
+    enum value_type rtype;          // if vtype == VALTYPE_FUNC, this means a return type.
     union {
         int64_t ivalue;             // EXPR_INT
         double dvalue;              // EXPR_DBL
         string_t *name;             // EXPR_VAR
         union {
+            struct {                // EXPR_UNARY
+                int op;
+                struct node_t_ *expr;
+            } unary;
             struct {                // EXPR_BINARY
                 int op;
                 struct node_t_ *lhs;

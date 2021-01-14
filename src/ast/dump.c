@@ -9,6 +9,8 @@ static const char *get_type_name(int vtype)
     switch (vtype) {
     case VALTYPE_INT: return "int";
     case VALTYPE_DBL: return "dbl";
+    case VALTYPE_STR: return "str";
+    case VALTYPE_FUNC: return "function";
     default:
         ;
     }
@@ -58,7 +60,7 @@ TOP:;
         break;
     }
     case EXPR_CALL: {
-        printf("[call]\n");
+        printf("[call]: %s\n", get_type_name(node->vtype));
         ast_dump_item(indent + 1, node->n.e.call.func);
         SHOW_INDENT(indent + 1);
         printf("[args]\n");
@@ -71,7 +73,7 @@ TOP:;
         break;
     }
     case EXPR_BINARY: {
-        printf("%s\n", get_operator_name(node->n.e.binary.op));
+        printf("%s: %s\n", get_operator_name(node->n.e.binary.op), get_type_name(node->vtype));
         ast_dump_item(indent + 1, node->n.e.binary.lhs);
         ast_dump_item(indent + 1, node->n.e.binary.rhs);
         break;
@@ -159,7 +161,7 @@ TOP:;
         break;
     }
     case STMT_FUNC: {
-        printf("[function-definition] %s -> %s\n", node->n.s.func.name->p, get_type_name(node->vtype));
+        printf("[function-definition] %s -> %s\n", node->n.s.func.name->p, get_type_name(node->rtype));
         ast_dump_item(indent + 1, node->n.s.func.args);
         ast_dump_item(indent + 1, node->n.s.func.block);
         CHECKNEXT(node);

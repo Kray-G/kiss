@@ -3,26 +3,36 @@
 #define CHECKNEXT(node) if (node->next) { node = node->next; goto TOP; }
 
 typedef struct ast_type_context_ {
-    int lvalue;
     symbol_table_t *symtbl;
 } ast_type_context_t;
 
-static void add_symbol(ast_type_context_t *ctx, const char *name, int vtype)
+typedef struct vtypes_ {
+    int vtype;
+    int rtype;
+} types_t;
+
+static void add_symbol_to_table(ast_type_context_t *ctx, const char *name, int vtype, int rtype)
 {
     symbol_table_t *symtbl = ctx->symtbl;
-    symbol_add(symtbl, name, vtype);
+    symbol_add(symtbl, name, vtype, rtype);
 }
 
-static int get_type_from_symbol_table(ast_type_context_t *ctx, const char *name)
+static types_t get_type_from_symbol_table(ast_type_context_t *ctx, const char *name)
 {
     symbol_table_t *symtbl = ctx->symtbl;
     symbol_t *sym = symbol_search(symtbl, name);
-    return sym ? sym->vtype : VALTYPE_UNKNOWN;
+    if (sym) {
+        return (types_t) {
+            .vtype = sym->vtype,
+            .rtype = sym->rtype,
+        };
+    }
+    return (types_t){0};
 }
 
-static int ast_type_item(node_t *node, ast_type_context_t *ctx)
+static types_t ast_type_item(node_t *node, ast_type_context_t *ctx)
 {
-    int type = VALTYPE_UNKNOWN;
+    types_t type = {0};
     if (!node) {
         return type;
     }
@@ -31,47 +41,52 @@ TOP:;
     switch (node->ntype) {
     /* dump expression. */
     case EXPR_INT: {
-        type = VALTYPE_INT;
+        type = (types_t){ .vtype = VALTYPE_INT };
         break;
     }
     case EXPR_DBL: {
-        type = VALTYPE_DBL;
+        type = (types_t){ .vtype = VALTYPE_DBL };
         break;
     }
     case EXPR_VAR: {
-        if (ctx->lvalue) {
-            /* add symbol to the current symbol table. */
-            add_symbol(ctx, node->n.name->p, node->vtype);
-        } else {
-            /* type will be from the symbol in the table. */
-            node->vtype = get_type_from_symbol_table(ctx, node->n.name->p);
-        }
-        type = node->vtype;
+        type = get_type_from_symbol_table(ctx, node->n.name->p);
+        node->vtype = type.vtype;
+        node->rtype = type.rtype;
         break;
     }
     case EXPR_CALL: {
-        (void)ast_type_item(node->n.e.call.func, ctx);
+        type = ast_type_item(node->n.e.call.func, ctx);
+        if (type.vtype == VALTYPE_FUNC) {
+            node->vtype = type.rtype;
+            node->rtype = VALTYPE_UNKNOWN;
+        } else {
+            node->vtype = type.vtype;
+            node->rtype = type.rtype;
+        }
+        type = (types_t){ .vtype = node->vtype, .rtype = node->rtype };
         (void)ast_type_item(node->n.e.call.args, ctx);
         node_t *next = node->n.e.call.args->next;
         while (next) {
             ast_type_item(next, ctx);
             next = next->next;
         }
-        if (node->n.e.call.func->ntype == EXPR_VAR) {
-            /* value type from symbol table. */
-            ;
-        }
         break;
     }
     case EXPR_BINARY: {
-        ast_type_item(node->n.e.binary.lhs, ctx);
-        ast_type_item(node->n.e.binary.rhs, ctx);
+        types_t ltype = ast_type_item(node->n.e.binary.lhs, ctx);
+        types_t rtype = ast_type_item(node->n.e.binary.rhs, ctx);
+        if (ltype.vtype == rtype.vtype) {
+            type = ltype;
+            node->vtype = type.vtype;
+            node->rtype = type.rtype;
+        } else {
+            // TODO: cast.
+        }
         break;
     }
     case EXPR_DECL: {
-        int lvale = ctx->lvalue;
+        add_symbol_to_table(ctx, node->n.e.decl.name->p, node->vtype, VALTYPE_UNKNOWN);
         ast_type_item(node->n.e.decl.initializer, ctx);
-        ctx->lvalue = lvale;
         if (node->next) {
             ast_type_item(node->next, ctx);
         }
@@ -128,6 +143,7 @@ TOP:;
         break;
     }
     case STMT_FUNC: {
+        add_symbol_to_table(ctx, node->n.s.func.name->p, node->vtype, node->rtype);
         ctx->symtbl = node->symtbl = symbol_table_new(ctx->symtbl);
         ast_type_item(node->n.s.func.args, ctx);
         ast_type_item(node->n.s.func.block, ctx);
@@ -146,7 +162,6 @@ void ast_type(node_t *root)
 {
     root->symtbl = symbol_table_new(NULL);
     ast_type_context_t ctx = {
-        .lvalue = 0,
         .symtbl = root->symtbl,
     };
     ast_type_item(root, &ctx);

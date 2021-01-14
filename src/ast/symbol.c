@@ -1,11 +1,12 @@
 #include "symbol.h"
 #include "node.h"
 
-static symbol_t *symbol_new(const char *name, int vtype)
+static symbol_t *symbol_new(const char *name, int vtype, int rtype)
 {
     symbol_t *sym = (symbol_t *)calloc(1, sizeof(symbol_t));
     sym->name = string_new(name);
     sym->vtype = vtype;
+    sym->rtype = rtype;
     return sym;
 }
 
@@ -23,11 +24,12 @@ static symbol_t *symbol_search_one(symbol_table_t *symtbl, const char *name)
         if (!strcmp(sym->name->p, name)) {
             return sym;
         }
+        sym = sym->next;
     }
     return NULL;
 }
 
-void symbol_add(symbol_table_t *symtbl, const char *name, int vtype)
+void symbol_add(symbol_table_t *symtbl, const char *name, int vtype, int rtype)
 {
     symbol_t *sym = symbol_search_one(symtbl, name);
     if (sym) {
@@ -38,7 +40,7 @@ void symbol_add(symbol_table_t *symtbl, const char *name, int vtype)
         return;
     }
 
-    sym = symbol_new(name, vtype);
+    sym = symbol_new(name, vtype, rtype);
     sym->next = symtbl->symbol;
     symtbl->symbol = sym;
 }
