@@ -6,8 +6,10 @@ OBJS= \
     kiss.tab.obj \
     context.obj \
     lexer.obj \
-    ast_node.obj \
-    ast_dump.obj \
+    ast\node.obj \
+    ast\dump.obj \
+    ast\symbol.obj \
+    ast\type.obj \
     $(LIBOBJS)
 CC=cl
 CFLAGS=/c /O2 /DYYDEBUG=1 -I$(INCDIR)
@@ -17,7 +19,7 @@ KMYACCOPT=-v -d -b kiss
 all: kiss.exe
 
 clean:
-    del /Q *.obj *.tab.c *.tab.h *.output *.exe
+    del /S /Q *.obj *.tab.c *.tab.h *.output *.exe
 
 kiss.exe: $(OBJS)
 	$(CC) /Fekiss.exe $(OBJS)
@@ -34,11 +36,20 @@ kiss.tab.h: kiss.y
 lexer.obj: lexer.c lexer.h kiss.tab.h
 	$(CC) $(CFLAGS) lexer.c
 
-ast_node.obj: ast_node.c ast_node.h kiss.tab.h
-	$(CC) $(CFLAGS) ast_node.c
+context.obj: context.c context.h ast\type.h ast\dump.h lexer.h kiss.tab.h
+	$(CC) $(CFLAGS) context.c
 
-ast_dump.obj: ast_dump.c ast_node.h kiss.tab.h
-	$(CC) $(CFLAGS) ast_dump.c
+ast\node.obj: ast\node.c ast\node.h kiss.tab.h
+	$(CC) $(CFLAGS) /Foast\node.obj ast\node.c
+
+ast\symbol.obj: ast\symbol.c ast\symbol.h ast\node.h kiss.tab.h
+	$(CC) $(CFLAGS) /Foast\symbol.obj ast\symbol.c
+
+ast\dump.obj: ast\dump.c ast\dump.h ast\node.h kiss.tab.h
+	$(CC) $(CFLAGS) /Foast\dump.obj ast\dump.c
+
+ast\type.obj: ast\type.c ast\type.h ast\symbol.h ast\node.h kiss.tab.h
+	$(CC) $(CFLAGS) /Foast\type.obj ast\type.c
 
 main.obj: main.c lexer.h kiss.tab.h
 	$(CC) $(CFLAGS) main.c

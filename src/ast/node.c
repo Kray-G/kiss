@@ -1,5 +1,5 @@
 
-#include "ast_node.h"
+#include "node.h"
 
 /*
     Management of nodes

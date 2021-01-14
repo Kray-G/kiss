@@ -1,5 +1,5 @@
-#include "ast_node.h"
-#include "kiss.tab.h"
+#include "node.h"
+#include "../kiss.tab.h"
 
 #define SHOW_INDENT(indent) for (int i = 0; i < indent; i++) printf("  ")
 #define CHECKNEXT(node) if (node->next) { node = node->next; goto TOP; }
@@ -159,7 +159,7 @@ TOP:;
         break;
     }
     case STMT_FUNC: {
-        printf("[function-definition] %s\n", node->n.s.func.name->p);
+        printf("[function-definition] %s -> %s\n", node->n.s.func.name->p, get_type_name(node->vtype));
         ast_dump_item(indent + 1, node->n.s.func.args);
         ast_dump_item(indent + 1, node->n.s.func.block);
         CHECKNEXT(node);

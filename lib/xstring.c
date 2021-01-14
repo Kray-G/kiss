@@ -67,7 +67,7 @@ string_t *string_append_char(string_t *dst, char c)
     if (dst->cap <= len) {
         int cap = (((len * 2) / STRING_UNIT) + 1) * STRING_UNIT;
         char *np = (char *)realloc(dst->p, cap);
-        // np == NULL then error?
+        // TODO: np == NULL then error?
         dst->p = np;
         dst->cap = cap;
     }

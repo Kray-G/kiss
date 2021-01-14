@@ -1,9 +1,10 @@
-#ifndef AST_NODE_H
-#define AST_NODE_H
+#ifndef KISS_NODE_H
+#define KISS_NODE_H
 
 #include <stdlib.h>
 #include <stdint.h>
 #include "xstring.h"
+#include "symbol.h"
 
 enum node_type {
     NODE_UNKNOWN,
@@ -87,6 +88,8 @@ typedef struct node_t_ {
             } func;
         } s;
     } n;
+
+    symbol_table_t *symtbl;
 } node_t;
 
 extern void node_free_all(node_manager_t *mgr);
@@ -113,4 +116,4 @@ extern node_t *ast_function_statement(node_manager_t *mgr, int64_t type, string_
 
 extern void ast_dump(node_t *root);
 
-#endif /* AST_NODE_H */
+#endif /* KISS_NODE_H */

@@ -1,5 +1,5 @@
-#ifndef LEXER_H
-#define LEXER_H
+#ifndef KISS_LEXER_H
+#define KISS_LEXER_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include "ast_node.h"
+#include "ast/node.h"
 #include "xstring.h"
 #include "xstring_set.h"
 
@@ -23,4 +23,4 @@ typedef struct kiss_parsectx_t_ {
     string_t *s;
 } kiss_parsectx_t;
 
-#endif /* LEXER_H */
+#endif /* KISS_LEXER_H */

@@ -2,7 +2,7 @@
 
 %{
 #include "lexer.h"
-#include "ast_node.h"
+#include "ast/node.h"
 
 #define YYPARSE_PARAM parsectx
 #define YYLEX_PARAM parsectx

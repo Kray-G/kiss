@@ -11,8 +11,9 @@ int main(int ac, char **av)
 
     kiss_context_t *ctx = new_context();
     int r = ctx->parse(ctx, av[1]);
-
-    ast_dump(ctx->nmgr.root);
+    if (r == 0) {
+        ctx->dump_ast(ctx);
+    }
 
     ctx->free(ctx);
     return r;

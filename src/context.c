@@ -20,6 +20,16 @@ static int parse_kiss(kiss_context_t *ctx, const char *filename)
     return yyparse(&(ctx->parsectx));
 }
 
+static void ast_dump_hook(kiss_context_t *ctx)
+{
+    ast_dump(ctx->nmgr.root);
+}
+
+static void ast_type_hook(kiss_context_t *ctx)
+{
+    ast_type(ctx->nmgr.root);
+}
+
 kiss_context_t *new_context(void)
 {
     kiss_context_t *ctx = calloc(1, sizeof(kiss_context_t));
@@ -28,6 +38,8 @@ kiss_context_t *new_context(void)
     ctx->parsectx.s = string_new(NULL);
     ctx->parsectx.lexctx.ch = ' ';
     ctx->parse = parse_kiss;
+    ctx->type_ast = ast_type_hook;
+    ctx->dump_ast = ast_dump_hook;
     ctx->free = free_context;
     return ctx;
 }
