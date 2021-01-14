@@ -9,7 +9,7 @@ OBJS= \
     ast\node.obj \
     ast\dump.obj \
     ast\symbol.obj \
-    ast\type.obj \
+    ast\typep.obj \
     $(LIBOBJS)
 CC=cl
 CFLAGS=/c /O2 /DYYDEBUG=1 -I$(INCDIR)
@@ -36,7 +36,7 @@ kiss.tab.h: kiss.y
 lexer.obj: lexer.c lexer.h kiss.tab.h
 	$(CC) $(CFLAGS) lexer.c
 
-context.obj: context.c context.h ast\type.h ast\dump.h lexer.h kiss.tab.h
+context.obj: context.c context.h ast\typep.h ast\dump.h lexer.h kiss.tab.h
 	$(CC) $(CFLAGS) context.c
 
 ast\node.obj: ast\node.c ast\node.h kiss.tab.h
@@ -48,8 +48,8 @@ ast\symbol.obj: ast\symbol.c ast\symbol.h ast\node.h kiss.tab.h
 ast\dump.obj: ast\dump.c ast\dump.h ast\node.h kiss.tab.h
 	$(CC) $(CFLAGS) /Foast\dump.obj ast\dump.c
 
-ast\type.obj: ast\type.c ast\type.h ast\symbol.h ast\node.h kiss.tab.h
-	$(CC) $(CFLAGS) /Foast\type.obj ast\type.c
+ast\typep.obj: ast\typep.c ast\typep.h ast\symbol.h ast\node.h kiss.tab.h
+	$(CC) $(CFLAGS) /Foast\typep.obj ast\typep.c
 
 main.obj: main.c lexer.h kiss.tab.h
 	$(CC) $(CFLAGS) main.c

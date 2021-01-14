@@ -1,4 +1,4 @@
-#include "type.h"
+#include "typep.h"
 
 #define CHECKNEXT(node) if (node->next) { node = node->next; goto TOP; }
 

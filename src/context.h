@@ -3,7 +3,7 @@
 
 #include "lexer.h"
 #include "ast/dump.h"
-#include "ast/type.h"
+#include "ast/typep.h"
 
 extern int yyparse(kiss_parsectx_t *);
 extern int yydebug;
