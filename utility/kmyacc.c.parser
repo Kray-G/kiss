@@ -268,7 +268,7 @@ $endif
  */
 #if YYPURE
 #  ifdef YYLEX_PARAM
-extern int yylex(YYSTYPE *, kxs_parsectx_t *);
+extern int yylex(YYSTYPE *, kiss_parsectx_t *);
 #    define YYLEX() yylex(&yylval, YYLEX_PARAM)
 #  else
 extern int yylex(YYSTYPE *);
@@ -334,7 +334,7 @@ int yyparse(YYPARSE_ARG)
         yychar1 = yychar < YYMAXLEX ? yytranslate[yychar] : YYBADCH;
         YYTRACE_READ(yychar1);
       }
-      
+
       if (found_in_action(yyn, yystate, yychar1)
           && (yyn = yyaction[yyn]) != YYDEFAULT) {
         /*

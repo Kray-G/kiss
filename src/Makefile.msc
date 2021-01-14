@@ -1,36 +1,46 @@
 LIBDIR=..\lib
 INCDIR=..\include
 LIBOBJS=xstring.obj xstring_set.obj
-OBJS=main.obj kxs.tab.obj lexer.obj ast_node.obj ast_dump.obj $(LIBOBJS)
+OBJS= \
+    main.obj \
+    kiss.tab.obj \
+    context.obj \
+    lexer.obj \
+    ast_node.obj \
+    ast_dump.obj \
+    $(LIBOBJS)
 CC=cl
 CFLAGS=/c /O2 /DYYDEBUG=1 -I$(INCDIR)
 YACC=..\utility\kmyacc
-KMYACCOPT=-v -d -b kxs
+KMYACCOPT=-v -d -b kiss
 
 all: kiss.exe
+
+clean:
+    del /Q *.obj *.tab.c *.tab.h *.output *.exe
 
 kiss.exe: $(OBJS)
 	$(CC) /Fekiss.exe $(OBJS)
 
-kxs.tab.obj: kxs.tab.c kxs.tab.h
-	$(CC) $(CFLAGS) kxs.tab.c
+kiss.tab.obj: kiss.tab.c kiss.tab.h
+	$(CC) $(CFLAGS) kiss.tab.c
 
-kxs.tab.c: kinxstatic.y
-	$(YACC) $(KMYACCOPT) kinxstatic.y
+kiss.tab.c: kiss.y
+	$(YACC) $(KMYACCOPT) kiss.y
 
-kxs.tab.h: kinxstatic.y
-	$(YACC) $(KMYACCOPT) kinxstatic.y
+kiss.tab.h: kiss.y
+	$(YACC) $(KMYACCOPT) kiss.y
 
-lexer.obj: lexer.c lexer.h kxs.tab.h
+lexer.obj: lexer.c lexer.h kiss.tab.h
 	$(CC) $(CFLAGS) lexer.c
 
-ast_node.obj: ast_node.c ast_node.h kxs.tab.h
+ast_node.obj: ast_node.c ast_node.h kiss.tab.h
 	$(CC) $(CFLAGS) ast_node.c
 
-ast_dump.obj: ast_dump.c ast_node.h kxs.tab.h
+ast_dump.obj: ast_dump.c ast_node.h kiss.tab.h
 	$(CC) $(CFLAGS) ast_dump.c
 
-main.obj: main.c lexer.h kxs.tab.h
+main.obj: main.c lexer.h kiss.tab.h
 	$(CC) $(CFLAGS) main.c
 
 xstring.obj: $(LIBDIR)\xstring.c $(INCDIR)\xstring.h

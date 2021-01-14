@@ -1,5 +1,5 @@
-#ifndef KXS_STRING_SET_H
-#define KXS_STRING_SET_H
+#ifndef KISS_STRING_SET_H
+#define KISS_STRING_SET_H
 
 #include <stdlib.h>
 #include <string.h>
@@ -25,4 +25,4 @@ extern void string_set_free_all(string_set_t *sset);
 extern string_t *string_set_search(string_set_t *sset, string_t *s);
 extern string_t *string_set_insert(string_set_t *sset, string_t *s);
 
-#endif /* KXS_STRING_SET_H */
+#endif /* KISS_STRING_SET_H */

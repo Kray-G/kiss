@@ -1,5 +1,5 @@
 #include "ast_node.h"
-#include "kxs.tab.h"
+#include "kiss.tab.h"
 
 #define SHOW_INDENT(indent) for (int i = 0; i < indent; i++) printf("  ")
 #define CHECKNEXT(node) if (node->next) { node = node->next; goto TOP; }

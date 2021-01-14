@@ -7,7 +7,7 @@
 #define YYPARSE_PARAM parsectx
 #define YYLEX_PARAM parsectx
 
-#define NODEMGR (((kxs_parsectx_t *)parsectx)->node_mgr)
+#define NODEMGR (((kiss_parsectx_t *)parsectx)->node_mgr)
 %}
 
 %union {

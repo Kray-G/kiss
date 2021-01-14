@@ -1,5 +1,5 @@
-#ifndef KXS_STRING_H
-#define KXS_STRING_H
+#ifndef KISS_STRING_H
+#define KISS_STRING_H
 
 #include <stdlib.h>
 #include <string.h>
@@ -22,4 +22,4 @@ extern string_t *string_append_char(string_t *dst, char c);
 extern string_t *string_append_str(string_t *dst, string_t *s);
 extern string_t *string_dup(string_t *dst);
 
-#endif /* KXS_STRING_H */
+#endif /* KISS_STRING_H */

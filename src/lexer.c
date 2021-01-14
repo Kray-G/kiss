@@ -1,17 +1,17 @@
 #include "lexer.h"
-#include "kxs.tab.h"
+#include "kiss.tab.h"
 
 #define lex_is_whitespace(c) ((c) == ' ' || (c) == '\t' || (c) == '\n' || (c) == '\r')
 #define lex_is_oct(c) ((c) == '0' || (c) == '1' || (c) == '2' || (c) == '3' || (c) == '4' || (c) == '5' || (c) == '6' || (c) == '7')
 #define lex_is_name1(c) (isalpha(c) || (c) == '$' || (c) == '_')
 #define lex_is_name2(c) (isalnum(c) || (c) == '$' || (c) == '_')
 
-static int lex_curr(kxs_lexctx_t *lexctx)
+static int lex_curr(kiss_lexctx_t *lexctx)
 {
     return lexctx->ch;
 }
 
-static int lex_next(kxs_lexctx_t *lexctx)
+static int lex_next(kiss_lexctx_t *lexctx)
 {
     if (lexctx->ch == EOF) {
         return EOF;
@@ -48,9 +48,9 @@ static int get_token_of_keyword(string_t *s)
 }
 
 #define LEX_BUFMAX (256)
-int yylex(YYSTYPE *yylval, kxs_parsectx_t *parsectx)
+int yylex(YYSTYPE *yylval, kiss_parsectx_t *parsectx)
 {
-    kxs_lexctx_t *lexctx = &(parsectx->lexctx);
+    kiss_lexctx_t *lexctx = &(parsectx->lexctx);
     int ch = lex_curr(lexctx);
 
     // skip whitespaces.
