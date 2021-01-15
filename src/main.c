@@ -14,6 +14,8 @@ int main(int ac, char **av)
     if (r == 0) {
         ctx->type_ast(ctx);
         ctx->dump_ast(ctx);
+    } else {
+        printf("failed: %d\n", r);
     }
 
     ctx->free(ctx);
