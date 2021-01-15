@@ -53,6 +53,7 @@ int yylex(YYSTYPE *yylval, kiss_parsectx_t *parsectx)
     kiss_lexctx_t *lexctx = &(parsectx->lexctx);
     int ch = lex_curr(lexctx);
 
+RETRY:;
     // skip whitespaces.
     while (lex_is_whitespace(ch)) {
         ch = lex_next(lexctx);
@@ -79,15 +80,44 @@ int yylex(YYSTYPE *yylval, kiss_parsectx_t *parsectx)
     switch (ch) {
     LEX_EQCASE('=', EQEQ);
     LEX_EQCASE('!', NEQ);
-    LEX_EQCASE('+', NEQ);
-    LEX_EQCASE('-', NEQ);
-    LEX_EQCASE('*', NEQ);
-    LEX_EQCASE('/', NEQ);
-    LEX_EQCASE('%', NEQ);
+    LEX_EQCASE('+', ADDEQ);
+    LEX_EQCASE('-', SUBEQ);
+    LEX_EQCASE('*', MULEQ);
+    LEX_EQCASE('%', MODEQ);
     LEX_EQCASE('<', LEQ);
     LEX_EQCASE('>', GEQ);
     LEX_CASE('(');
     LEX_CASE(')');
+        case '/':
+            ch = lex_next(lexctx);
+            if (ch == '=') {
+                lex_next(lexctx);
+                return DIVEQ;
+            }
+            if (ch == '/') {    // line comment.
+                ch = lex_next(lexctx);
+                while (ch != '\n' && ch != EOF) {
+                    ch = lex_next(lexctx);
+                }
+                ch = lex_next(lexctx);
+                goto RETRY;
+            }
+            if (ch == '*') {    // multi-lines comment.
+                int nested = 1;
+                ch = lex_next(lexctx);
+                while (ch != EOF) {
+                    int c = ch;
+                    ch = lex_next(lexctx);
+                    if (c == '/' && ch == '*') {
+                        ++nested;
+                    } else if (c == '*' && ch == '/') {
+                        if (--nested == 0) break;
+                    }
+                }
+                ch = lex_next(lexctx);
+                goto RETRY;
+            }
+            return '/';
     default:
         ;
     }
