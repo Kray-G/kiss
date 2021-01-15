@@ -10,6 +10,7 @@ OBJS= \
     ast\dump.obj \
     ast\symbol.obj \
     ast\typep.obj \
+    backend\out_c.obj \
     $(LIBOBJS)
 CC=cl
 CFLAGS=/c /O2 /DYYDEBUG=1 -I$(INCDIR)
@@ -50,6 +51,9 @@ ast\dump.obj: ast\dump.c ast\dump.h ast\node.h kiss.tab.h
 
 ast\typep.obj: ast\typep.c ast\typep.h ast\symbol.h ast\node.h kiss.tab.h
 	$(CC) $(CFLAGS) /Foast\typep.obj ast\typep.c
+
+backend\out_c.obj: backend\out_c.c backend\out_c.h ast\symbol.h ast\node.h kiss.tab.h
+	$(CC) $(CFLAGS) /Fobackend\out_c.obj backend\out_c.c
 
 main.obj: main.c lexer.h kiss.tab.h
 	$(CC) $(CFLAGS) main.c

@@ -90,6 +90,7 @@ typedef struct node_t_ {
         } s;
     } n;
 
+    symbol_t *sym;
     symbol_table_t *symtbl;
 } node_t;
 
@@ -115,6 +116,8 @@ extern node_t *ast_postcond_loop_statement(node_manager_t *mgr, node_t *expr, no
 extern node_t *ast_return_statement(node_manager_t *mgr, node_t *expr, node_t *if_modifier);
 extern node_t *ast_function_statement(node_manager_t *mgr, int64_t type, string_t *name, node_t *args, node_t *block);
 
-extern void ast_dump(node_t *root);
+#define SHOW_INDENT(indent) for (int i = 0; i < indent; i++) printf("  ")
+#define SHOW_INDENT4(indent) for (int i = 0; i < indent; i++) printf("    ")
+#define CHECKNEXT(node) if (node->next) { node = node->next; goto TOP; }
 
 #endif /* KISS_NODE_H */

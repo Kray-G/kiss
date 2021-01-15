@@ -27,7 +27,12 @@ static void ast_dump_hook(kiss_context_t *ctx)
 
 static void ast_type_hook(kiss_context_t *ctx)
 {
-    ast_type(ctx->nmgr.root);
+    ctx->funcs = ast_type(ctx->nmgr.root);
+}
+
+static void ast_output_hook(kiss_context_t *ctx)
+{
+    ast_output_c_code(ctx->funcs, ctx->nmgr.root);
 }
 
 kiss_context_t *new_context(void)
@@ -40,6 +45,7 @@ kiss_context_t *new_context(void)
     ctx->parse = parse_kiss;
     ctx->type_ast = ast_type_hook;
     ctx->dump_ast = ast_dump_hook;
+    ctx->output = ast_output_hook;
     ctx->free = free_context;
     return ctx;
 }

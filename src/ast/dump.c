@@ -1,9 +1,6 @@
 #include "node.h"
 #include "../kiss.tab.h"
 
-#define SHOW_INDENT(indent) for (int i = 0; i < indent; i++) printf("  ")
-#define CHECKNEXT(node) if (node->next) { node = node->next; goto TOP; }
-
 static const char *get_type_name(int vtype)
 {
     switch (vtype) {
@@ -168,7 +165,7 @@ TOP:;
         }
         SHOW_INDENT(indent + 1);
         printf("[then]\n");
-        ast_dump_item(indent + 2, node->n.s.loop.e2);
+        ast_dump_item(indent + 2, node->n.s.loop.then_cloause);
         if (node->n.s.loop.e3) {
             SHOW_INDENT(indent + 1);
             printf("[update]\n");

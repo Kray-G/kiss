@@ -5,6 +5,7 @@
 typedef struct ast_type_context_ {
     symbol_t *funcdecl;
     symbol_table_t *symtbl;
+    list_t *funcs;
 } ast_type_context_t;
 
 static symbol_t *add_symbol_to_table(ast_type_context_t *ctx, const char *name, types_t type)
@@ -47,7 +48,7 @@ TOP:;
     case EXPR_CALL: {
         type = ast_type_item(node->n.e.call.func, ctx);
         if (type.vtype == VALTYPE_FUNC) {
-            type = node->vtype = (types_t) { .vtype = type.rtype, .rtype = VALTYPE_UNKNOWN };
+            type = node->vtype = (types_t) { .vtype = type.rtype };
         } else {
             node->vtype = type;
         }
@@ -131,10 +132,11 @@ TOP:;
         break;
     }
     case STMT_FUNC: {
-        symbol_t *sym = add_symbol_to_table(ctx, node->n.s.func.name->p, node->vtype);
+        list_push(ctx->funcs, (void*)node, NULL);
+        node->sym = add_symbol_to_table(ctx, node->n.s.func.name->p, node->vtype);
         ctx->symtbl = node->symtbl = symbol_table_new(ctx->symtbl);
         symbol_t *fsym = ctx->funcdecl;
-        ctx->funcdecl = sym;
+        ctx->funcdecl = node->sym;
         ast_type_item(node->n.s.func.args, ctx);
         ctx->funcdecl = fsym;
         ast_type_item(node->n.s.func.block, ctx);
@@ -149,11 +151,9 @@ TOP:;
     return type;
 }
 
-void ast_type(node_t *root)
+list_t *ast_type(node_t *root)
 {
-    ast_type_context_t ctx = {
-        .funcdecl = NULL,
-        .symtbl = NULL,
-    };
+    ast_type_context_t ctx = { .funcdecl = NULL, .symtbl = NULL, .funcs = list_new() };
     ast_type_item(root, &ctx);
+    return ctx.funcs;
 }
