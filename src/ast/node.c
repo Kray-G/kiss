@@ -28,6 +28,9 @@ void node_free_all(node_manager_t *mgr)
             if (m->node->symtbl) {
                 symbol_table_free(m->node->symtbl);
             }
+            if (m->node->vtype.argtypes) {
+                list_free(m->node->vtype.argtypes);
+            }
             free(m->node);
         }
         free(m);

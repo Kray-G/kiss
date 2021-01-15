@@ -108,6 +108,11 @@ types_t list_get_argtype(list_t *argtypes, int index)
     return *(types_t*)(l1->item);
 }
 
+void free_hook(void *p)
+{
+    free(p);
+}
+
 list_t *list_add_argtype(list_t *argtypes, types_t type)
 {
     if (!argtypes) {
@@ -116,7 +121,7 @@ list_t *list_add_argtype(list_t *argtypes, types_t type)
 
     types_t *typep = (types_t *)calloc(1, sizeof(types_t));
     memcpy(typep, &type, sizeof(types_t));
-    list_push(argtypes, typep, NULL);
+    list_push(argtypes, typep, free_hook);
     return argtypes;
 }
 
@@ -127,6 +132,6 @@ symbol_t *symbol_add_argtype(symbol_t *sym, types_t type)
     }
     types_t *typep = (types_t *)calloc(1, sizeof(types_t));
     memcpy(typep, &type, sizeof(types_t));
-    list_push(sym->argtypes, typep, NULL);
+    list_push(sym->argtypes, typep, free_hook);
     return sym;
 }

@@ -46,7 +46,10 @@ TOP:;
         break;
     }
     case EXPR_VAR: {
-        type = node->vtype = get_type_from_symbol_table(ctx, node->n.name->p);
+        if (!node->vtype.argtypes) {
+            node->vtype = get_type_from_symbol_table(ctx, node->n.name->p);
+        }
+        type = (types_t){ .vtype = node->vtype.vtype, .rtype = node->vtype.rtype };
         break;
     }
     case EXPR_CALL: {

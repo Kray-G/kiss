@@ -17,7 +17,7 @@ enum value_type {
 typedef struct vtypes_ {
     enum value_type vtype;
     enum value_type rtype;
-    list_t *argtypes;
+    list_t *argtypes;   // TODO: to be copyable.
 } types_t;
 
 typedef struct symbol_ {
