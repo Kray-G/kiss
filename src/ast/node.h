@@ -27,14 +27,6 @@ enum node_type {
     STMT_FUNC,
 };
 
-enum value_type {
-    VALTYPE_UNKNOWN,
-    VALTYPE_INT,
-    VALTYPE_DBL,
-    VALTYPE_STR,
-    VALTYPE_FUNC,
-};
-
 struct node_t_;
 typedef struct node_manager_t_ {
     struct node_t_ *node;
@@ -48,8 +40,8 @@ typedef struct node_t_ {
     struct node_t_ *last;           // for statement or expression list.
 
     enum node_type ntype;
-    enum value_type vtype;          // type of value.
-    enum value_type rtype;          // if vtype == VALTYPE_FUNC, this means a return type.
+    types_t vtype;                  // type of value.
+
     union {
         int64_t ivalue;             // EXPR_INT
         double dvalue;              // EXPR_DBL

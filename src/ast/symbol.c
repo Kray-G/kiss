@@ -1,13 +1,21 @@
 #include "symbol.h"
 #include "node.h"
 
-static symbol_t *symbol_new(const char *name, int vtype, int rtype)
+static symbol_t *symbol_new(const char *name, types_t type)
 {
     symbol_t *sym = (symbol_t *)calloc(1, sizeof(symbol_t));
     sym->name = string_new(name);
-    sym->vtype = vtype;
-    sym->rtype = rtype;
+    sym->type = type;
     return sym;
+}
+
+static void symbol_free(symbol_t *sym)
+{
+    if (sym->argtypes) {
+        list_free(sym->argtypes);
+    }
+    string_free(sym->name);
+    free(sym);
 }
 
 symbol_table_t *symbol_table_new(symbol_table_t *parent)
@@ -15,6 +23,16 @@ symbol_table_t *symbol_table_new(symbol_table_t *parent)
     symbol_table_t *symtbl = (symbol_table_t *)calloc(1, sizeof(symbol_table_t));
     symtbl->parent = parent;
     return symtbl;
+}
+
+void symbol_table_free(symbol_table_t *symtbl)
+{
+    symbol_t *sym = symtbl->symbol;
+    while (sym) {
+        symbol_t *next = sym->next;
+        symbol_free(sym);
+        sym = next;
+    }
 }
 
 static symbol_t *symbol_search_one(symbol_table_t *symtbl, const char *name)
@@ -29,20 +47,21 @@ static symbol_t *symbol_search_one(symbol_table_t *symtbl, const char *name)
     return NULL;
 }
 
-void symbol_add(symbol_table_t *symtbl, const char *name, int vtype, int rtype)
+symbol_t *symbol_add(symbol_table_t *symtbl, const char *name, types_t type)
 {
     symbol_t *sym = symbol_search_one(symtbl, name);
     if (sym) {
-        if (sym->vtype != VALTYPE_UNKNOWN && sym->vtype != vtype) {
+        if (sym->type.vtype != VALTYPE_UNKNOWN && sym->type.vtype != type.vtype) {
             // TODO: error.
             ;
         }
-        return;
+        return sym;
     }
 
-    sym = symbol_new(name, vtype, rtype);
+    sym = symbol_new(name, type);
     sym->next = symtbl->symbol;
     symtbl->symbol = sym;
+    return sym;
 }
 
 symbol_t *symbol_search(symbol_table_t *symtbl, const char *name)
@@ -56,4 +75,50 @@ symbol_t *symbol_search(symbol_table_t *symtbl, const char *name)
         sym = symbol_search_one(symtbl, name);
     }
     return sym;
+}
+
+int symbol_get_argcount(symbol_t *sym)
+{
+    if (!sym->argtypes) {
+        return 0;
+    }
+    int count = 0;
+    listitem_t *l = sym->argtypes->head;
+    while (l) {
+        ++count;
+        l = l->next;
+    }
+    return count;
+}
+
+symbol_t *symbol_add_argtype(symbol_t *sym, types_t type)
+{
+    if (!sym->argtypes) {
+        sym->argtypes = list_new();
+    }
+    list_push(sym->argtypes, (void *)type.vtype, NULL);
+    list_push(sym->argtypes, (void *)type.rtype, NULL);
+    return sym;
+}
+
+types_t symbol_get_argtype(symbol_t *sym, int index)
+{
+    if (!sym->argtypes) {
+        return (types_t){0};
+    }
+
+    int i = index * 2;
+    listitem_t *l1 = list_get(sym->argtypes, i);
+    if (!l1) {
+        return (types_t){0};
+    }
+    listitem_t *l2 = l1->next;
+    if (!l2) {
+        return (types_t){0};
+    }
+
+    return (types_t){
+        .vtype = (enum value_type)l1->item,
+        .rtype = (enum value_type)l2->item,
+    };
 }

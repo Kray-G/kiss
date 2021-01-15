@@ -1,6 +1,6 @@
 LIBDIR=..\lib
 INCDIR=..\include
-LIBOBJS=xstring.obj xstring_set.obj
+LIBOBJS=xstring.obj xstring_set.obj xlist.obj
 OBJS= \
     main.obj \
     kiss.tab.obj \
@@ -59,3 +59,6 @@ xstring.obj: $(LIBDIR)\xstring.c $(INCDIR)\xstring.h
 
 xstring_set.obj: $(LIBDIR)\xstring_set.c $(INCDIR)\xstring_set.h
 	$(CC) $(CFLAGS) $(LIBDIR)\xstring_set.c
+
+xlist.obj: $(LIBDIR)\xlist.c $(INCDIR)\xlist.h
+	$(CC) $(CFLAGS) $(LIBDIR)\xlist.c

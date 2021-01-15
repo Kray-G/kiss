@@ -24,7 +24,12 @@ void node_free_all(node_manager_t *mgr)
     node_manager_t *m = mgr->head;
     while (m) {
         node_manager_t *next = m->head;
-        free(m->node);
+        if (m->node) {
+            if (m->node->symtbl) {
+                symbol_table_free(m->node->symtbl);
+            }
+            free(m->node);
+        }
         free(m);
         m = next;
     }
@@ -46,7 +51,7 @@ node_t *node_connect(node_t *prev, node_t *next)
 */
 node_t *ast_set_root(node_manager_t *mgr, node_t *root)
 {
-    mgr->root = root;
+    mgr->root = ast_block_statement(mgr, root);
     return root;
 }
 
@@ -57,7 +62,7 @@ node_t *ast_value_int(node_manager_t *mgr, int64_t ivalue)
 {
     node_t *n = node_new(mgr);
     n->ntype = EXPR_INT;
-    n->vtype = VALTYPE_INT;
+    n->vtype = (types_t) { .vtype = VALTYPE_INT };
     n->n.ivalue = ivalue;
     return n;
 }
@@ -66,7 +71,7 @@ node_t *ast_value_dbl(node_manager_t *mgr, double dvalue)
 {
     node_t *n = node_new(mgr);
     n->ntype = EXPR_DBL;
-    n->vtype = VALTYPE_DBL;
+    n->vtype = (types_t) { .vtype = VALTYPE_DBL };
     n->n.dvalue = dvalue;
     return n;
 }
@@ -75,7 +80,7 @@ node_t *ast_variable(node_manager_t *mgr, string_t *name)
 {
     node_t *n = node_new(mgr);
     n->ntype = EXPR_VAR;
-    n->vtype = VALTYPE_UNKNOWN;
+    n->vtype = (types_t) { .vtype = VALTYPE_UNKNOWN };
     n->n.name = name;
     return n;
 }
@@ -84,7 +89,7 @@ node_t *ast_call(node_manager_t *mgr, node_t *func, node_t *args)
 {
     node_t *n = node_new(mgr);
     n->ntype = EXPR_CALL;
-    n->vtype = VALTYPE_UNKNOWN;
+    n->vtype = (types_t) { .vtype = VALTYPE_UNKNOWN };
     n->n.e.call.func = func;
     n->n.e.call.args = args;
     return n;
@@ -94,7 +99,7 @@ node_t *ast_binary(node_manager_t *mgr, int op, node_t *lhs, node_t *rhs)
 {
     node_t *n = node_new(mgr);
     n->ntype = EXPR_BINARY;
-    n->vtype = VALTYPE_UNKNOWN;
+    n->vtype = (types_t) { .vtype = VALTYPE_UNKNOWN };
     n->n.e.binary.op = op;
     n->n.e.binary.lhs = lhs;
     n->n.e.binary.rhs = rhs;
@@ -109,7 +114,7 @@ node_t *ast_binary_right(node_manager_t *mgr, int op, node_t *lhs, node_t *rhs)
     }
     node_t *n = node_new(mgr);
     n->ntype = EXPR_BINARY;
-    n->vtype = VALTYPE_UNKNOWN;
+    n->vtype = (types_t) { .vtype = VALTYPE_UNKNOWN };
     n->n.e.binary.op = op;
     n->n.e.binary.lhs = *p;
     n->n.e.binary.rhs = rhs;
@@ -121,7 +126,7 @@ node_t *ast_decl_expression(node_manager_t *mgr, string_t *name, int vtype, node
 {
     node_t *n = node_new(mgr);
     n->ntype = EXPR_DECL;
-    n->vtype = vtype;
+    n->vtype = (types_t) { .vtype = vtype };
     n->n.e.decl.name = name;
     n->n.e.decl.initializer = initializer;
     return n;
@@ -134,7 +139,7 @@ node_t *ast_expr_statement(node_manager_t *mgr, node_t *expr)
 {
     node_t *n = node_new(mgr);
     n->ntype = STMT_EXPR;
-    n->vtype = VALTYPE_UNKNOWN;
+    n->vtype = (types_t) { .vtype = VALTYPE_UNKNOWN };
     n->n.s.expr = expr;
     return n;
 }
@@ -152,7 +157,7 @@ node_t *ast_block_statement(node_manager_t *mgr, node_t *stmt)
 
     node_t *n = node_new(mgr);
     n->ntype = STMT_BLOCK;
-    n->vtype = VALTYPE_UNKNOWN;
+    n->vtype = (types_t) { .vtype = VALTYPE_UNKNOWN };
     n->n.s.block = stmt;
     return n;
 }
@@ -161,7 +166,7 @@ node_t *ast_branch_statement(node_manager_t *mgr, node_t *expr, node_t *then_cla
 {
     node_t *n = node_new(mgr);
     n->ntype = STMT_BRANCH;
-    n->vtype = VALTYPE_UNKNOWN;
+    n->vtype = (types_t) { .vtype = VALTYPE_UNKNOWN };
     n->n.s.branch.expr = expr;
     n->n.s.branch.then_cloause = ast_block_statement(mgr, then_clause);
     n->n.s.branch.else_cloause = ast_block_statement(mgr, else_clause);
@@ -172,7 +177,7 @@ node_t *ast_for_loop_statement(node_manager_t *mgr, node_t *expr1, node_t *expr2
 {
     node_t *n = node_new(mgr);
     n->ntype = STMT_PRELOOP;
-    n->vtype = VALTYPE_UNKNOWN;
+    n->vtype = (types_t) { .vtype = VALTYPE_UNKNOWN };
     n->n.s.loop.e1 = expr1;
     n->n.s.loop.e2 = expr2;
     n->n.s.loop.e3 = expr3;
@@ -184,7 +189,7 @@ node_t *ast_precond_loop_statement(node_manager_t *mgr, node_t *expr, node_t *th
 {
     node_t *n = node_new(mgr);
     n->ntype = STMT_PRELOOP;
-    n->vtype = VALTYPE_UNKNOWN;
+    n->vtype = (types_t) { .vtype = VALTYPE_UNKNOWN };
     n->n.s.loop.e2 = expr;
     n->n.s.loop.then_cloause = ast_block_statement(mgr, then_clause);
     return n;
@@ -194,7 +199,7 @@ node_t *ast_postcond_loop_statement(node_manager_t *mgr, node_t *expr, node_t *t
 {
     node_t *n = node_new(mgr);
     n->ntype = STMT_PSTLOOP;
-    n->vtype = VALTYPE_UNKNOWN;
+    n->vtype = (types_t) { .vtype = VALTYPE_UNKNOWN };
     n->n.s.loop.e2 = expr;
     n->n.s.loop.then_cloause = ast_block_statement(mgr, then_clause);
     return n;
@@ -204,7 +209,7 @@ node_t *ast_return_statement(node_manager_t *mgr, node_t *expr, node_t *if_modif
 {
     node_t *n = node_new(mgr);
     n->ntype = STMT_RET;
-    n->vtype = VALTYPE_UNKNOWN;
+    n->vtype = (types_t) { .vtype = VALTYPE_UNKNOWN };
     n->n.s.ret.expr = expr;
     if (if_modifier_expr) {
         return ast_branch_statement(mgr, if_modifier_expr, n, NULL);
@@ -216,8 +221,7 @@ node_t *ast_function_statement(node_manager_t *mgr, int64_t rtype, string_t *nam
 {
     node_t *n = node_new(mgr);
     n->ntype = STMT_FUNC;
-    n->vtype = VALTYPE_FUNC;
-    n->rtype = rtype;
+    n->vtype = (types_t) { .vtype = VALTYPE_FUNC, .rtype = rtype };
     n->n.s.func.name = name;
     n->n.s.func.args = args;
     n->n.s.func.block = block;

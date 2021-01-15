@@ -36,6 +36,41 @@ static const char *get_operator_name(int op)
     return b;
 }
 
+static void print_symbol_table(symbol_table_t *symtbl)
+{
+    symbol_t *sym = symtbl->symbol;
+    if (!sym) {
+        return;
+    }
+    printf("======== Symbol Table ========\n");
+    while (sym) {
+        if (sym->type.rtype) {
+            printf(" * %s:%s -> %s", sym->name->p, get_type_name(sym->type.vtype), get_type_name(sym->type.rtype));
+        } else {
+            printf(" * %s:%s", sym->name->p, get_type_name(sym->type.vtype));
+        }
+        if (sym->argtypes) {
+            printf(" (");
+            for (int i = 0; ; ++i) {
+                types_t type = symbol_get_argtype(sym, i);
+                if (type.vtype == 0 && type.rtype == 0) {
+                    break;
+                }
+                if (i > 0) printf(", ");
+                if (type.rtype) {
+                    printf("%s(%s)", get_type_name(type.vtype), get_type_name(type.rtype));
+                } else {
+                    printf("%s", get_type_name(type.vtype));
+                }
+            }
+            printf(")");
+        }
+        printf("\n");
+        sym = sym->next;
+    }
+    printf("------------------------------\n");
+}
+
 static void ast_dump_item(int indent, node_t *node)
 {
     if (!node) {
@@ -56,11 +91,11 @@ TOP:;
         break;
     }
     case EXPR_VAR: {
-        printf("%s: %s\n", node->n.name->p, get_type_name(node->vtype));
+        printf("%s: %s\n", node->n.name->p, get_type_name(node->vtype.vtype));
         break;
     }
     case EXPR_CALL: {
-        printf("[call]: %s\n", get_type_name(node->vtype));
+        printf("[call]: %s\n", get_type_name(node->vtype.vtype));
         ast_dump_item(indent + 1, node->n.e.call.func);
         SHOW_INDENT(indent + 1);
         printf("[args]\n");
@@ -73,7 +108,7 @@ TOP:;
         break;
     }
     case EXPR_BINARY: {
-        printf("%s: %s\n", get_operator_name(node->n.e.binary.op), get_type_name(node->vtype));
+        printf("%s: %s\n", get_operator_name(node->n.e.binary.op), get_type_name(node->vtype.vtype));
         ast_dump_item(indent + 1, node->n.e.binary.lhs);
         ast_dump_item(indent + 1, node->n.e.binary.rhs);
         break;
@@ -81,7 +116,7 @@ TOP:;
     case EXPR_DECL: {
         printf("[declaration]\n");
         SHOW_INDENT(indent + 1);
-        printf("%s: %s\n", node->n.e.decl.name->p, get_type_name(node->vtype));
+        printf("%s: %s\n", node->n.e.decl.name->p, get_type_name(node->vtype.vtype));
         ast_dump_item(indent + 2, node->n.e.decl.initializer);
         if (node->next) {
             ast_dump_item(indent, node->next);
@@ -98,6 +133,7 @@ TOP:;
     }
     case STMT_BLOCK: {
         printf("[block]\n");
+        print_symbol_table(node->symtbl);
         ast_dump_item(indent + 1, node->n.s.block);
         CHECKNEXT(node);
         break;
@@ -161,7 +197,8 @@ TOP:;
         break;
     }
     case STMT_FUNC: {
-        printf("[function-definition] %s -> %s\n", node->n.s.func.name->p, get_type_name(node->rtype));
+        printf("[function-definition] %s -> %s\n", node->n.s.func.name->p, get_type_name(node->vtype.rtype));
+        print_symbol_table(node->symtbl);
         ast_dump_item(indent + 1, node->n.s.func.args);
         ast_dump_item(indent + 1, node->n.s.func.block);
         CHECKNEXT(node);
