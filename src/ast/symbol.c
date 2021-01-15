@@ -96,29 +96,22 @@ symbol_t *symbol_add_argtype(symbol_t *sym, types_t type)
     if (!sym->argtypes) {
         sym->argtypes = list_new();
     }
-    list_push(sym->argtypes, (void *)type.vtype, NULL);
-    list_push(sym->argtypes, (void *)type.rtype, NULL);
+    types_t *typep = (types_t *)calloc(1, sizeof(types_t));
+    memcpy(typep, &type, sizeof(types_t));
+    list_push(sym->argtypes, typep, NULL);
     return sym;
 }
 
-types_t symbol_get_argtype(symbol_t *sym, int index)
+types_t symbol_get_argtype(list_t *argtypes, int index)
 {
-    if (!sym->argtypes) {
+    if (!argtypes) {
         return (types_t){0};
     }
 
-    int i = index * 2;
-    listitem_t *l1 = list_get(sym->argtypes, i);
+    listitem_t *l1 = list_get(argtypes, index);
     if (!l1) {
         return (types_t){0};
     }
-    listitem_t *l2 = l1->next;
-    if (!l2) {
-        return (types_t){0};
-    }
 
-    return (types_t){
-        .vtype = (enum value_type)l1->item,
-        .rtype = (enum value_type)l2->item,
-    };
+    return *(types_t*)(l1->item);
 }

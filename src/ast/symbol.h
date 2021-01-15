@@ -16,6 +16,7 @@ enum value_type {
 typedef struct vtypes_ {
     enum value_type vtype;
     enum value_type rtype;
+    list_t *argtypes;
 } types_t;
 
 typedef struct symbol_ {
@@ -36,6 +37,6 @@ extern symbol_t *symbol_add(symbol_table_t *symtbl, const char *name, types_t ty
 extern symbol_t *symbol_search(symbol_table_t *symtbl, const char *name);
 
 extern symbol_t *symbol_add_argtype(symbol_t *sym, types_t type);
-extern types_t symbol_get_argtype(symbol_t *sym, int index);
+extern types_t symbol_get_argtype(list_t *argtypes, int index);
 
 #endif /* KISS_SYMBOL_H */

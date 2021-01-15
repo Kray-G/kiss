@@ -33,6 +33,27 @@ static const char *get_operator_name(int op)
     return b;
 }
 
+static void print_argument_list(list_t *argtypes)
+{
+    printf(" (");
+    for (int i = 0; ; ++i) {
+        types_t type = symbol_get_argtype(argtypes, i);
+        if (type.vtype == 0 && type.rtype == 0) {
+            break;
+        }
+        if (i > 0) printf(", ");
+        if (type.rtype) {
+            printf("%s->%s", get_type_name(type.vtype), get_type_name(type.rtype));
+            if (type.argtypes) {
+                print_argument_list(type.argtypes);
+            }
+        } else {
+            printf("%s", get_type_name(type.vtype));
+        }
+    }
+    printf(")");
+}
+
 static void print_symbol_table(symbol_table_t *symtbl)
 {
     symbol_t *sym = symtbl->symbol;
@@ -47,20 +68,7 @@ static void print_symbol_table(symbol_table_t *symtbl)
             printf(" * %s:%s", sym->name->p, get_type_name(sym->type.vtype));
         }
         if (sym->argtypes) {
-            printf(" (");
-            for (int i = 0; ; ++i) {
-                types_t type = symbol_get_argtype(sym, i);
-                if (type.vtype == 0 && type.rtype == 0) {
-                    break;
-                }
-                if (i > 0) printf(", ");
-                if (type.rtype) {
-                    printf("%s(%s)", get_type_name(type.vtype), get_type_name(type.rtype));
-                } else {
-                    printf("%s", get_type_name(type.vtype));
-                }
-            }
-            printf(")");
+            print_argument_list(sym->argtypes);
         }
         printf("\n");
         sym = sym->next;

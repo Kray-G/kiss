@@ -194,6 +194,40 @@ TOP:;
     }
 }
 
+static void print_arglist(list_t *argtypes)
+{
+    for (int i = 0; ; ++i) {
+        types_t type = symbol_get_argtype(argtypes, i);
+        if (type.vtype == 0 && type.rtype == 0) {
+            break;
+        }
+        if (i > 0) printf(", ");
+        if (type.rtype) {
+            printf("%s (*)(", get_type_name(type.rtype));
+            if (type.argtypes) {
+                print_arglist(type.argtypes);
+            }
+            printf(")");
+        } else {
+            printf("%s", get_type_name(type.vtype));
+        }
+    }
+}
+
+static void print_prototype(symbol_t *sym)
+{
+    if (sym->type.rtype) {
+        printf("%s %s", get_type_name(sym->type.rtype), sym->name->p);
+    } else {
+        printf("int %s", sym->name->p);
+    }
+    printf("(");
+    if (sym->argtypes) {
+        print_arglist(sym->argtypes);
+    }
+    printf(");\n");
+}
+
 static void ast_output_function(list_t *funcs, node_t *node)
 {
     ast_output_context_t outctx = {0};
@@ -205,7 +239,20 @@ static void ast_output_function(list_t *funcs, node_t *node)
             break;
         }
         node_t *func = (node_t *)(head->item);
-        print_indent(0, "\n%s %s(", get_type_name(func->vtype.rtype), func->n.s.func.name->p);
+        if (func->sym) {
+            print_prototype(func->sym);
+        }
+    }
+    print_indent(0, "\n");
+
+    index = 0;
+    while (1) {
+        listitem_t *head = list_get(funcs, index++);
+        if (!head) {
+            break;
+        }
+        node_t *func = (node_t *)(head->item);
+        print_indent(0, "%s %s(", get_type_name(func->vtype.rtype), func->n.s.func.name->p);
         outctx.in_arglist = 1;
         ast_output_c(0, func->n.s.func.args, &outctx);
         outctx.in_arglist = 0;
@@ -214,7 +261,7 @@ static void ast_output_function(list_t *funcs, node_t *node)
         printf("\n");
     }
 
-    print_indent(0, "int main()\n");
+    print_indent(0, "int main(void)\n");
     ast_output_c(0, node, &outctx);
     print_indent(0, "\n");
 }
