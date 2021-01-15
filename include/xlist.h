@@ -20,7 +20,7 @@ extern void list_free(list_t *list);
 extern list_t *list_push(list_t *list, void *item, void (*free)(void *item));
 extern list_t *list_unshift(list_t *list, void *item, void (*free)(void *item));
 extern list_t *list_remove(list_t *list, void *item);
-extern void list_remove_item(listitem_t *l);
+extern void list_remove_item(list_t *list, listitem_t *l);
 extern list_t *list_remove_head(list_t *list);
 extern list_t *list_remove_tail(list_t *list);
 

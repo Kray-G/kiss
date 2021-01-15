@@ -61,7 +61,7 @@ list_t *list_remove(list_t *list, void *item)
     listitem_t *l = list->head;
     while (l) {
         if (l->item == item) {
-            list_remove_item(l);
+            list_remove_item(list, l);
             break;
         }
         l = l->next;
@@ -69,30 +69,34 @@ list_t *list_remove(list_t *list, void *item)
     return list;
 }
 
-void list_remove_item(listitem_t *l)
+void list_remove_item(list_t *list, listitem_t *l)
 {
-    if (l) {
+    if (list && l) {
         listitem_t *prev = l->prev;
         listitem_t *next = l->next;
         listitem_free(l);
         if (prev) {
             prev->next = next;
+        } else {
+            list->head = next;
         }
         if (next) {
             next->prev = prev;
+        } else {
+            list->tail = prev;
         }
     }
 }
 
 list_t *list_remove_head(list_t *list)
 {
-    list_remove_item(list->head);
+    list_remove_item(list, list->head);
     return list;
 }
 
 list_t *list_remove_tail(list_t *list)
 {
-    list_remove_item(list->tail);
+    list_remove_item(list, list->tail);
     return list;
 }
 
