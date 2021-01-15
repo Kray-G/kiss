@@ -9,7 +9,7 @@ string_t *string_new_empty(void)
     return s;
 }
 
-string_t *string_new_len(char *p, int len)
+string_t *string_new_len(const char *p, int len)
 {
     string_t *s = (string_t *)calloc(1, sizeof(string_t));
     s->cap = (((len * 2) / STRING_UNIT) + 1) * STRING_UNIT;
@@ -20,7 +20,7 @@ string_t *string_new_len(char *p, int len)
     return s;
 }
 
-string_t *string_new(char *p)
+string_t *string_new(const char *p)
 {
     if (!p) {
         return string_new_empty();
