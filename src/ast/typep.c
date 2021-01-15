@@ -41,6 +41,10 @@ TOP:;
         type = (types_t){ .vtype = VALTYPE_DBL };
         break;
     }
+    case EXPR_STR: {
+        type = (types_t){ .vtype = VALTYPE_STR };
+        break;
+    }
     case EXPR_VAR: {
         type = node->vtype = get_type_from_symbol_table(ctx, node->n.name->p);
         break;

@@ -14,6 +14,9 @@ static void symbol_free(symbol_t *sym)
     if (sym->argtypes) {
         list_free(sym->argtypes);
     }
+    if (sym->type.argtypes) {
+        list_free(sym->type.argtypes);
+    }
     string_free(sym->name);
     free(sym);
 }
@@ -91,18 +94,7 @@ int symbol_get_argcount(symbol_t *sym)
     return count;
 }
 
-symbol_t *symbol_add_argtype(symbol_t *sym, types_t type)
-{
-    if (!sym->argtypes) {
-        sym->argtypes = list_new();
-    }
-    types_t *typep = (types_t *)calloc(1, sizeof(types_t));
-    memcpy(typep, &type, sizeof(types_t));
-    list_push(sym->argtypes, typep, NULL);
-    return sym;
-}
-
-types_t symbol_get_argtype(list_t *argtypes, int index)
+types_t list_get_argtype(list_t *argtypes, int index)
 {
     if (!argtypes) {
         return (types_t){0};
@@ -114,4 +106,27 @@ types_t symbol_get_argtype(list_t *argtypes, int index)
     }
 
     return *(types_t*)(l1->item);
+}
+
+list_t *list_add_argtype(list_t *argtypes, types_t type)
+{
+    if (!argtypes) {
+        return NULL;
+    }
+
+    types_t *typep = (types_t *)calloc(1, sizeof(types_t));
+    memcpy(typep, &type, sizeof(types_t));
+    list_push(argtypes, typep, NULL);
+    return argtypes;
+}
+
+symbol_t *symbol_add_argtype(symbol_t *sym, types_t type)
+{
+    if (!sym->argtypes) {
+        sym->argtypes = list_new();
+    }
+    types_t *typep = (types_t *)calloc(1, sizeof(types_t));
+    memcpy(typep, &type, sizeof(types_t));
+    list_push(sym->argtypes, typep, NULL);
+    return sym;
 }

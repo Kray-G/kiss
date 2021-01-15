@@ -76,6 +76,15 @@ node_t *ast_value_dbl(node_manager_t *mgr, double dvalue)
     return n;
 }
 
+node_t *ast_value_str(node_manager_t *mgr, string_t *svalue)
+{
+    node_t *n = node_new(mgr);
+    n->ntype = EXPR_STR;
+    n->vtype = (types_t) { .vtype = VALTYPE_STR };
+    n->n.svalue = svalue;
+    return n;
+}
+
 node_t *ast_variable(node_manager_t *mgr, string_t *name)
 {
     node_t *n = node_new(mgr);
@@ -225,5 +234,15 @@ node_t *ast_function_statement(node_manager_t *mgr, int64_t rtype, string_t *nam
     n->n.s.func.name = name;
     n->n.s.func.args = args;
     n->n.s.func.block = block;
+    return n;
+}
+
+node_t *ast_builtin_function(node_manager_t *mgr, const char *name)
+{
+    node_t *n = node_new(mgr);
+    n->ntype = EXPR_VAR;
+    n->vtype = (types_t) { .vtype = VALTYPE_INT, .argtypes = list_new() };
+    list_add_argtype(n->vtype.argtypes, (types_t) { .vtype = VALTYPE_VA });
+    n->n.name = string_new(name);
     return n;
 }

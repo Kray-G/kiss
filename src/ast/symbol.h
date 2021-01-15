@@ -11,6 +11,7 @@ enum value_type {
     VALTYPE_DBL,
     VALTYPE_STR,
     VALTYPE_FUNC,
+    VALTYPE_VA,
 };
 
 typedef struct vtypes_ {
@@ -37,6 +38,7 @@ extern symbol_t *symbol_add(symbol_table_t *symtbl, const char *name, types_t ty
 extern symbol_t *symbol_search(symbol_table_t *symtbl, const char *name);
 
 extern symbol_t *symbol_add_argtype(symbol_t *sym, types_t type);
-extern types_t symbol_get_argtype(list_t *argtypes, int index);
+extern list_t *list_add_argtype(list_t *argtypes, types_t type);
+extern types_t list_get_argtype(list_t *argtypes, int index);
 
 #endif /* KISS_SYMBOL_H */

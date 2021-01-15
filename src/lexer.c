@@ -27,7 +27,9 @@ static int get_token_of_keyword(string_t *s)
 {
     char *buf = s->p;
     char ch = buf[0];
-    if (ch == 'd') {
+    if (ch == '_') {
+        if (!strcmp(buf, "_printf")) return _PRINTF;
+    } else if (ch == 'd') {
         if (!strcmp(buf, "dbl")) return DBL_TYPE;
     } else if (ch == 'e') {
         if (!strcmp(buf, "else")) return ELSE;
@@ -88,36 +90,61 @@ RETRY:;
     LEX_EQCASE('>', GEQ);
     LEX_CASE('(');
     LEX_CASE(')');
-        case '/':
+    case '"': {
+        string_t *s = string_clear(parsectx->s);
+        ch = lex_next(lexctx);
+        while (ch != '"') {
+            if (ch == '%') {
+                string_append_char(s, '%');
+                ch = lex_next(lexctx);
+                if (ch == 'd') {
+                    string_append(s, PRId64);
+                } else {
+                    string_append_char(s, ch);
+                }
+            } else if (ch == '\\') {
+                string_append_char(s, '\\');
+                ch = lex_next(lexctx);
+                string_append_char(s, ch);
+            } else {
+                string_append_char(s, ch);
+            }
             ch = lex_next(lexctx);
-            if (ch == '=') {
-                lex_next(lexctx);
-                return DIVEQ;
-            }
-            if (ch == '/') {    // line comment.
+        }
+        yylval->sv = string_set_insert(parsectx->string_mgr, s);
+        lex_next(lexctx);
+        return STR_VALUE;
+    }
+    case '/':
+        ch = lex_next(lexctx);
+        if (ch == '=') {
+            lex_next(lexctx);
+            return DIVEQ;
+        }
+        if (ch == '/') {    // line comment.
+            ch = lex_next(lexctx);
+            while (ch != '\n' && ch != EOF) {
                 ch = lex_next(lexctx);
-                while (ch != '\n' && ch != EOF) {
-                    ch = lex_next(lexctx);
+            }
+            ch = lex_next(lexctx);
+            goto RETRY;
+        }
+        if (ch == '*') {    // multi-lines comment.
+            int nested = 1;
+            ch = lex_next(lexctx);
+            while (ch != EOF) {
+                int c = ch;
+                ch = lex_next(lexctx);
+                if (c == '/' && ch == '*') {
+                    ++nested;
+                } else if (c == '*' && ch == '/') {
+                    if (--nested == 0) break;
                 }
-                ch = lex_next(lexctx);
-                goto RETRY;
             }
-            if (ch == '*') {    // multi-lines comment.
-                int nested = 1;
-                ch = lex_next(lexctx);
-                while (ch != EOF) {
-                    int c = ch;
-                    ch = lex_next(lexctx);
-                    if (c == '/' && ch == '*') {
-                        ++nested;
-                    } else if (c == '*' && ch == '/') {
-                        if (--nested == 0) break;
-                    }
-                }
-                ch = lex_next(lexctx);
-                goto RETRY;
-            }
-            return '/';
+            ch = lex_next(lexctx);
+            goto RETRY;
+        }
+        return '/';
     default:
         ;
     }

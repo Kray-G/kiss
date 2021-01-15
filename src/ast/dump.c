@@ -37,7 +37,7 @@ static void print_argument_list(list_t *argtypes)
 {
     printf(" (");
     for (int i = 0; ; ++i) {
-        types_t type = symbol_get_argtype(argtypes, i);
+        types_t type = list_get_argtype(argtypes, i);
         if (type.vtype == 0 && type.rtype == 0) {
             break;
         }
@@ -93,6 +93,10 @@ TOP:;
     }
     case EXPR_DBL: {
         printf("%f: dbl\n", node->n.dvalue);
+        break;
+    }
+    case EXPR_STR: {
+        printf("\"%s\": str\n", node->n.svalue->p);
         break;
     }
     case EXPR_VAR: {

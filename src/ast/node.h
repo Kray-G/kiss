@@ -11,6 +11,7 @@ enum node_type {
 
     EXPR_INT,
     EXPR_DBL,
+    EXPR_STR,
     EXPR_VAR,
     EXPR_CALL,
     EXPR_UNARY,
@@ -45,6 +46,7 @@ typedef struct node_t_ {
     union {
         int64_t ivalue;             // EXPR_INT
         double dvalue;              // EXPR_DBL
+        string_t *svalue;           // EXPR_STR
         string_t *name;             // EXPR_VAR
         union {
             struct {                // EXPR_UNARY
@@ -99,8 +101,9 @@ extern node_t *node_connect(node_t *prev, node_t *next);
 
 extern node_t *ast_set_root(node_manager_t *mgr, node_t *root);
 
-extern node_t *ast_value_int(node_manager_t *mgr, int64_t type);
-extern node_t *ast_value_dbl(node_manager_t *mgr, double type);
+extern node_t *ast_value_int(node_manager_t *mgr, int64_t value);
+extern node_t *ast_value_dbl(node_manager_t *mgr, double value);
+extern node_t *ast_value_str(node_manager_t *mgr, string_t *value);
 extern node_t *ast_variable(node_manager_t *mgr, string_t *name);
 extern node_t *ast_binary(node_manager_t *mgr, int op, node_t *lhs, node_t *rhs);
 extern node_t *ast_binary_right(node_manager_t *mgr, int op, node_t *lhs, node_t *rhs);
@@ -115,6 +118,8 @@ extern node_t *ast_precond_loop_statement(node_manager_t *mgr, node_t *expr, nod
 extern node_t *ast_postcond_loop_statement(node_manager_t *mgr, node_t *expr, node_t *then_clause);
 extern node_t *ast_return_statement(node_manager_t *mgr, node_t *expr, node_t *if_modifier);
 extern node_t *ast_function_statement(node_manager_t *mgr, int64_t type, string_t *name, node_t *args, node_t *block);
+
+extern node_t *ast_builtin_function(node_manager_t *mgr, const char *name);
 
 #define SHOW_INDENT(indent) for (int i = 0; i < indent; i++) printf("  ")
 #define SHOW_INDENT4(indent) for (int i = 0; i < indent; i++) printf("    ")

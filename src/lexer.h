@@ -7,6 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <inttypes.h>
 #include "ast/node.h"
 #include "xstring.h"
 #include "xstring_set.h"

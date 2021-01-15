@@ -68,7 +68,11 @@ TOP:;
         break;
     }
     case EXPR_DBL: {
-        print_factor("%f\n", node->n.dvalue);
+        print_factor("%f", node->n.dvalue);
+        break;
+    }
+    case EXPR_STR: {
+        print_factor("\"%s\"", node->n.svalue->p);
         break;
     }
     case EXPR_VAR: {
@@ -81,6 +85,7 @@ TOP:;
         ast_output_c(indent, node->n.e.call.args, outctx);
         node_t *next = node->n.e.call.args->next;
         while (next) {
+            print_factor(", ");
             ast_output_c(indent, next, outctx);
             next = next->next;
         }
@@ -115,7 +120,9 @@ TOP:;
 
     /* dump statement, note that a statement can have a next statement. */
     case STMT_EXPR: {
+        print_indent(indent, "");
         ast_output_c(indent, node->n.s.expr, outctx);
+        print_factor(";\n");
         CHECKNEXT(node);
         break;
     }
@@ -197,7 +204,7 @@ TOP:;
 static void print_arglist(list_t *argtypes)
 {
     for (int i = 0; ; ++i) {
-        types_t type = symbol_get_argtype(argtypes, i);
+        types_t type = list_get_argtype(argtypes, i);
         if (type.vtype == 0 && type.rtype == 0) {
             break;
         }
@@ -268,5 +275,6 @@ static void ast_output_function(list_t *funcs, node_t *node)
 
 void ast_output_c_code(list_t *funcs, node_t *root)
 {
+    print_indent(0, "typedef signed long long int int64_t;\n\n");
     ast_output_function(funcs, root);
 }

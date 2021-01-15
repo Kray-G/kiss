@@ -13,7 +13,7 @@ int main(int ac, char **av)
     int r = ctx->parse(ctx, av[1]);
     if (r == 0) {
         ctx->type_ast(ctx);
-        ctx->dump_ast(ctx);
+        // ctx->dump_ast(ctx);
         ctx->output(ctx);
     } else {
         printf("failed: %d\n", r);

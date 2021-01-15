@@ -20,9 +20,11 @@
 %token ERROR
 %token VAR IF ELSE FOR DO WHILE FUNCTION RETURN
 %token ADDEQ SUBEQ MULEQ DIVEQ MODEQ EQEQ NEQ LEQ GEQ
+%token _PRINTF
 %token<iv> INT_TYPE DBL_TYPE
 %token<iv> INT_VALUE
 %token<dv> DBL_VALUE
+%token<sv> STR_VALUE
 %token<sv> NAME
 
 %type<node> program
@@ -57,6 +59,7 @@
 %type<node> function_definition
 %type<node> argument_list
 %type<node> argument
+%type<node> builtin_function
 
 %%
 
@@ -161,6 +164,7 @@ mul_div_mod_expression
 postfix_expression
     : factor
     | postfix_expression '(' call_argument_list ')' { $$ = ast_call(NODEMGR, $1, $3); }
+    | builtin_function '(' call_argument_list ')' { $$ = ast_call(NODEMGR, $1, $3); }
     ;
 
 call_argument_list
@@ -172,6 +176,7 @@ factor
     : NAME { $$ = ast_variable(NODEMGR, $1); }
     | INT_VALUE { $$ = ast_value_int(NODEMGR, $1); }
     | DBL_VALUE { $$ = ast_value_dbl(NODEMGR, $1); }
+    | STR_VALUE { $$ = ast_value_str(NODEMGR, $1); }
     | '(' expression ')' { $$ = $2; }
     ;
 
@@ -231,6 +236,10 @@ argument_list
 
 argument
     : NAME type_info_Opt { $$ = ast_decl_expression(NODEMGR, $1, $2, NULL); }
+    ;
+
+builtin_function
+    : _PRINTF { $$ = ast_builtin_function(NODEMGR, "printf"); }
     ;
 
 %%
